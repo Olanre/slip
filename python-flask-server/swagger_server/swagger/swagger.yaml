@@ -1,0 +1,168 @@
+openapi: 3.0.1
+info:
+  title: Tiny URL
+  description: This is a sample TinyURL API server.  You can find out more about at
+    piquednow.shopify.com. For this sample, you do not need any authorization
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: okunlola.olanre@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://piquednow.swagger.io/v2
+- url: http://piquednow.swagger.io/v2
+tags:
+- name: URL
+  description: Decribes a URL object that can be encoded or decoded
+  externalDocs:
+    description: Find out more
+    url: https://tinyurl.com/
+paths:
+  /url/:
+    get:
+      tags:
+      - url
+      summary: Gets the list of all encoded urls
+      description: 'A list of all tiny: long urls will be retrieved in a key value
+        pair'
+      operationId: get_all_urls
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/URLs'
+                x-content-type: application/json
+        500:
+          description: Undefined server error
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.url_controller
+    post:
+      tags:
+      - url
+      summary: Encode a new url
+      description: Converts a long url to a tiny url
+      operationId: shrink_url
+      parameters:
+      - name: long_url
+        in: path
+        description: The long url you wish to convert to a tiny URL
+        required: true
+        schema:
+          type: string
+      responses:
+        201:
+          description: Successfully shrank the url
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/URL'
+        404:
+          description: url not found
+          content: {}
+        422:
+          description: Invalid url
+          content: {}
+        500:
+          description: Undefined server error
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.url_controller
+  /url/{tiny_url}:
+    get:
+      tags:
+      - url
+      summary: Extract a URL entry by the given tiny URL
+      description: Returns the long url given a short url
+      operationId: get_long_url_by_id
+      parameters:
+      - name: tiny_url
+        in: path
+        description: tiny URL you want to decode
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+        404:
+          description: Tiny url not found
+          content: {}
+        422:
+          description: Invalid tiny url supplied
+          content: {}
+        500:
+          description: Undefined server error
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.url_controller
+    delete:
+      tags:
+      - url
+      summary: Deletes an encoded url
+      description: This will delete a url entry by the given short url as the index
+      operationId: delete_url
+      parameters:
+      - name: tiny_url
+        in: path
+        description: short url to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        202:
+          description: Successfully deleted
+          content: {}
+        404:
+          description: Tiny url not found
+          content: {}
+        422:
+          description: Invalid tiny url supplied
+          content: {}
+        500:
+          description: Undefined server error
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.url_controller
+components:
+  schemas:
+    URLs:
+      type: object
+      properties:
+        url:
+          $ref: '#/components/schemas/URL'
+      example:
+        url:
+          tiny_url: tiny_url
+          long_url: long_url
+    URL:
+      type: object
+      properties:
+        tiny_url:
+          type: string
+        long_url:
+          type: string
+      example:
+        tiny_url: tiny_url
+        long_url: long_url
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+

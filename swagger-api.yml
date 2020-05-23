@@ -1,0 +1,143 @@
+swagger: "2.0"
+info:
+  description: "This is a sample TinyURL API server.  You can find out more about at piquednow.shopify.com. For this sample, you do not need any authorization"
+  version: "1.0.1"
+  title: "Tiny URL"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "okunlola.olanre@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "piquednow.swagger.io"
+basePath: "/v2"
+tags:
+- name: "URL"
+  description: "Decribes a URL object that can be encoded or decoded"
+  externalDocs:
+    description: "Find out more"
+    url: "https://tinyurl.com/"
+schemes:
+- "https"
+- "http"
+paths:
+  /url/:
+    post:
+      tags:
+      - "url"
+      summary: "Encode a new url"
+      description: "Converts a long url to a tiny url"
+      operationId: "shrinkURL"
+      consumes:
+      - "application/xml"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "long_url"
+        description: "The long url you wish to convert to a tiny URL"
+        required: true
+        type: "string"
+      responses:
+        "201":
+          description: "Successfully shrank the url"
+          schema:
+              $ref: "#/definitions/URL"
+        "422":
+          description: "Invalid url"
+        "404":
+          description: "url not found"
+        "500":
+          description: "Undefined server error"
+    get:
+      tags:
+      - "url"
+      summary: "Gets the list of all encoded urls"
+      description: "A list of all tiny: long urls will be retrieved in a key value pair"
+      operationId: "getAllUrls"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/URLs"
+        "500":
+          description: "Undefined server error"
+  /url/{tiny_url}:
+    get:
+      tags:
+      - "url"
+      summary: "Extract a URL entry by the given tiny URL"
+      description: "Returns the long url given a short url"
+      operationId: "getLongURLById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tiny_url"
+        in: "path"
+        description: "tiny URL you want to decode"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "string"
+        "422":
+          description: "Invalid tiny url supplied"
+        "404":
+          description: "Tiny url not found"
+        "500":
+          description: "Undefined server error"
+    delete:
+      tags:
+      - "url"
+      summary: "Deletes an encoded url"
+      description: "This will delete a url entry by the given short url as the index"
+      operationId: "deleteURL"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tiny_url"
+        in: "path"
+        description: "short url to delete"
+        required: true
+        type: "string"
+      responses:
+        "422":
+          description: "Invalid tiny url supplied"
+        "202":
+          description: "Successfully deleted"
+        "404":
+          description: "Tiny url not found"
+        "500":
+          description: "Undefined server error"
+definitions:
+  URLs:
+    type: "object"
+    properties:
+       url:
+        $ref: "#/definitions/URL"
+  URL:
+    type: "object"
+    properties:
+      tiny_url:
+        type: "string"
+      long_url:
+        type: "string"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"

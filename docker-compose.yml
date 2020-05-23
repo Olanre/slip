@@ -1,0 +1,60 @@
+version: '3'
+networks:
+  web:
+    external: true
+  internal:
+    external: false
+
+
+services:
+  traefik:
+    image: "traefik:v2.2"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+ tinyurl:
+    build:
+      context: ./python-flask-server/
+      dockerfile: app.docker
+    networks:
+      - internal
+      - web
+    ports:
+      - 10000-10010:8080
+    volumes:
+    - ./:/var/www
+    labels:
+        - traefik.backend=blog
+        - traefik.frontend.rule=Host:localhost
+        - traefik.docker.network=web
+        - traefik.port=8080
+    depends_on:
+    - redis
+    environment:
+    - "APP_ENV=${APP_ENV}"
+    - "APP_DEBUG=${APP_DEBUG}"
+    - "APP_KEY=${APP_KEY}"
+    - "REDIS_HOST=${REDIS_HOST}"
+    - "REDIS_PASSWORD=${REDIS_PASSWORD}"
+    - "REDIS_PORT=${REDIS_PORT}"
+
+ redis:
+  image: redis:3.0
+  ports:
+    - "6379:6379"
+  volumes:
+   - ./redis:/data
+  networks:
+    - internal
+  labels:
+    - traefik.enable=false
